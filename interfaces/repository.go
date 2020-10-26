@@ -3,6 +3,7 @@ package interfaces
 import (
 	"fmt"
 	"github.com/fahimbagar/eurofxref-ecb-europa-eu/domain"
+	"log"
 )
 
 type DBHandler interface {
@@ -20,16 +21,16 @@ type DBRepository struct {
 	dbHandler  DBHandler
 }
 
-type IExchange DBRepository
+type ExchangeRepository DBRepository
 
-func NewDBExchange(dbHandlers map[string]DBHandler) (*IExchange, error) {
-	dbExchange := new(IExchange)
+func NewDBExchange(dbHandlers map[string]DBHandler) (*ExchangeRepository, error) {
+	dbExchange := new(ExchangeRepository)
 	dbExchange.dbHandlers = dbHandlers
 	dbExchange.dbHandler = dbHandlers["ExchangeRepository"]
 	return dbExchange, nil
 }
 
-func (repo *IExchange) ResetDB() error {
+func (repo *ExchangeRepository) ResetDB() error {
 	if err := repo.dbHandler.Execute("DROP TABLE IF EXISTS exchange;"); err != nil {
 		return err
 	}
@@ -39,7 +40,7 @@ func (repo *IExchange) ResetDB() error {
 		(   
 			id INTEGER CONSTRAINT exchange_pk PRIMARY KEY AUTOINCREMENT,
 			currency TEXT NOT NULL,
-			forex_date DATE NOT NULL,
+			forex_date TIMESTAMP NOT NULL,
 			rate FLOAT,
 			createdAt DATE DEFAULT CURRENT_TIMESTAMP NOT NULL
 		);
@@ -50,10 +51,10 @@ func (repo *IExchange) ResetDB() error {
 	return nil
 }
 
-func (repo *IExchange) Store(envelope domain.Envelope) error {
+func (repo *ExchangeRepository) Store(envelope Envelope) error {
 	for _, currencies := range envelope.Exchanges.CurrenciesPerDate {
 		for _, currency := range currencies.Currency {
-			if err := repo.dbHandler.Execute(fmt.Sprintf("INSERT INTO exchange (currency, forex_date, rate) VALUES ('%s', '%s', '%s')", currency.Currency, currencies.Time, currency.Rate)); err != nil {
+			if err := repo.dbHandler.Execute(fmt.Sprintf("INSERT INTO exchange (currency, rate, forex_date) VALUES ('%s', '%s', '%s')", currency.Currency, currency.Rate, currencies.Time)); err != nil {
 				return err
 			}
 		}
@@ -62,7 +63,7 @@ func (repo *IExchange) Store(envelope domain.Envelope) error {
 	return nil
 }
 
-func (repo *IExchange) FindByLatestDate() []domain.Exchange {
+func (repo *ExchangeRepository) FindByLatestDate() []domain.Exchange {
 	row := repo.dbHandler.Query(`
 		SELECT t.currency, t.rate, t.forex_date
 		FROM exchange t
@@ -77,7 +78,7 @@ func (repo *IExchange) FindByLatestDate() []domain.Exchange {
 	for row.Next() {
 		var exchange domain.Exchange
 		if err := row.Scan(&exchange.Currency, &exchange.Rate, &exchange.ForexDate); err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 		exchanges = append(exchanges, exchange)
 	}
@@ -85,7 +86,7 @@ func (repo *IExchange) FindByLatestDate() []domain.Exchange {
 	return exchanges
 }
 
-func (repo *IExchange) FindByDateString(date string) []domain.Exchange {
+func (repo *ExchangeRepository) FindByDateString(date string) []domain.Exchange {
 	row := repo.dbHandler.Query(fmt.Sprintf(`
 		SELECT t.currency, t.rate, t.forex_date
 		FROM exchange t
@@ -96,7 +97,7 @@ func (repo *IExchange) FindByDateString(date string) []domain.Exchange {
 	for row.Next() {
 		var exchange domain.Exchange
 		if err := row.Scan(&exchange.Currency, &exchange.Rate, &exchange.ForexDate); err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 		exchanges = append(exchanges, exchange)
 	}

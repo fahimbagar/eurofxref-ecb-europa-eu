@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gesmes:Envelope xmlns:gesmes="http://www.gesmes.org/xml/2002-08-01"
+                 xmlns="http://www.ecb.int/vocabulary/2002-08-01/eurofxref">
+    <gesmes:subject>Reference rates</gesmes:subject>
+    <gesmes:Sender>
+        <gesmes:name>European Central Bank</gesmes:name>
+    </gesmes:Sender>
+    <Cube>
+        <Cube time="2020-10-22">
+            <Cube currency="USD" rate="1.1821"/>
+            <Cube currency="JPY" rate="123.72"/>
+            <Cube currency="BGN" rate="1.9558"/>
+            <Cube currency="CZK" rate="27.23"/>
+            <Cube currency="DKK" rate="7.4409"/>
+            <Cube currency="GBP" rate="0.90273"/>
+            <Cube currency="HUF" rate="364.6"/>
+            <Cube currency="PLN" rate="4.5783"/>
+            <Cube currency="RON" rate="4.874"/>
+            <Cube currency="SEK" rate="10.374"/>
+            <Cube currency="CHF" rate="1.0726"/>
+            <Cube currency="ISK" rate="164.6"/>
+            <Cube currency="NOK" rate="10.9325"/>
+            <Cube currency="HRK" rate="7.5788"/>
+            <Cube currency="RUB" rate="90.8256"/>
+            <Cube currency="TRY" rate="9.3815"/>
+            <Cube currency="AUD" rate="1.6644"/>
+            <Cube currency="BRL" rate="6.6389"/>
+            <Cube currency="CAD" rate="1.5559"/>
+            <Cube currency="CNY" rate="7.898"/>
+            <Cube currency="HKD" rate="9.1614"/>
+            <Cube currency="IDR" rate="17426.16"/>
+            <Cube currency="ILS" rate="3.9983"/>
+            <Cube currency="INR" rate="87.112"/>
+            <Cube currency="KRW" rate="1341.66"/>
+            <Cube currency="MXN" rate="24.999"/>
+            <Cube currency="MYR" rate="4.8992"/>
+            <Cube currency="NZD" rate="1.7739"/>
+            <Cube currency="PHP" rate="57.467"/>
+            <Cube currency="SGD" rate="1.6043"/>
+            <Cube currency="THB" rate="37"/>
+            <Cube currency="ZAR" rate="19.2759"/>
+        </Cube>
+    </Cube>
+</gesmes:Envelope>
