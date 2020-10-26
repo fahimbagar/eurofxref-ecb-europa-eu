@@ -104,3 +104,21 @@ func (repo *ExchangeRepository) FindByDateString(date string) []domain.Exchange 
 
 	return exchanges
 }
+
+func (repo *ExchangeRepository) Find() []domain.Exchange {
+	row := repo.dbHandler.Query(`
+		SELECT currency, rate, forex_date
+		FROM exchange
+		ORDER BY currency;
+	`)
+	var exchanges []domain.Exchange
+	for row.Next() {
+		var exchange domain.Exchange
+		if err := row.Scan(&exchange.Currency, &exchange.Rate, &exchange.ForexDate); err != nil {
+			log.Fatal(err)
+		}
+		exchanges = append(exchanges, exchange)
+	}
+
+	return exchanges
+}

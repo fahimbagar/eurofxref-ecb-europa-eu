@@ -35,6 +35,7 @@ func main() {
 	customHandler.HandleFunc(regexp.MustCompile(`/hello-world$`), webservices.HelloWorld)
 	customHandler.HandleFunc(regexp.MustCompile(`/rates/latest$`), webservices.GetLatestExchange)
 	customHandler.HandleFunc(regexp.MustCompile(`/rates/(\d{4}-\d{2}-\d{2})$`), webservices.GetLatestExchangeByDate)
+	customHandler.HandleFunc(regexp.MustCompile(`/rates/analyze$`), webservices.RatesAnalyze)
 
 	log.Println("http served at http://localhost:8080")
 	if err = http.ListenAndServe(":8080", customHandler); err != nil {

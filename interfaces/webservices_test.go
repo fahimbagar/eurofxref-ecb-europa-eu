@@ -14,6 +14,10 @@ type MockEngine struct {
 	ExchangeRepository ExchangeRepository
 }
 
+func (m MockEngine) GetAnalyzedRates() ForexResponse {
+	return ForexResponse{}
+}
+
 func (m MockEngine) GetLatestExchange() ForexResponse {
 	return ForexResponse{}
 }

@@ -18,6 +18,7 @@ type ExchangeRepository interface {
 	Store(envelope interfaces.Envelope) error
 	FindByLatestDate() []domain.Exchange
 	FindByDateString(date string) []domain.Exchange
+	Find() []domain.Exchange
 }
 
 func (exchangeEngine ExchangeEngine) Prepare() {
@@ -43,32 +44,71 @@ func (exchangeEngine ExchangeEngine) Prepare() {
 	log.Println("finish preparing exchange engine (use case)...")
 }
 
-func (exchangeEngine *ExchangeEngine) GetLatestExchange() interfaces.ForexResponse {
-	forex := exchangeEngine.ExchangeRepository.FindByLatestDate()
+func (exchangeEngine *ExchangeEngine) GetLatestExchange() (fxResponse interfaces.ForexResponse) {
+	result := exchangeEngine.ExchangeRepository.FindByLatestDate()
 
-	exchangesResponse := interfaces.ForexResponse{
-		Base:  exchangeEngine.BaseCurrency,
-		Rates: make(map[string]float64, 0),
-	}
-	for _, fx := range forex {
-		exchangesResponse.Rates[fx.Currency] = fx.Rate
-		exchangesResponse.Date = fx.ForexDate.Format("2006-01-02")
+	fxResponse.Base = exchangeEngine.BaseCurrency
+	fxResponse.Rates = make(map[string]float64, 0)
+	for _, fx := range result {
+		fxResponse.Rates[fx.Currency] = fx.Rate
+		fxResponse.Date = fx.ForexDate.Format("2006-01-02")
 	}
 
-	return exchangesResponse
+	return
 }
 
-func (exchangeEngine ExchangeEngine) GetExchangeByDate(date string) interfaces.ForexResponse {
-	forex := exchangeEngine.ExchangeRepository.FindByDateString(date)
+func (exchangeEngine ExchangeEngine) GetExchangeByDate(date string) (fxResponse interfaces.ForexResponse) {
+	result := exchangeEngine.ExchangeRepository.FindByDateString(date)
 
-	exchangesResponse := interfaces.ForexResponse{
-		Base:  exchangeEngine.BaseCurrency,
-		Rates: make(map[string]float64, 0),
-	}
-	for _, fx := range forex {
-		exchangesResponse.Rates[fx.Currency] = fx.Rate
-		exchangesResponse.Date = fx.ForexDate.Format("2006-01-02")
+	fxResponse.Base = exchangeEngine.BaseCurrency
+	fxResponse.Rates = make(map[string]float64, 0)
+	for _, fx := range result {
+		fxResponse.Rates[fx.Currency] = fx.Rate
+		fxResponse.Date = fx.ForexDate.Format("2006-01-02")
 	}
 
-	return exchangesResponse
+	return
+}
+
+func (exchangeEngine ExchangeEngine) GetAnalyzedRates() (fxResponse interfaces.ForexResponse) {
+	result := exchangeEngine.ExchangeRepository.Find()
+
+	fxResponse.Base = exchangeEngine.BaseCurrency
+	fxResponse.RatesAnalyzer = make(map[string]interfaces.RatesAnalyze, 0)
+	for _, fx := range result {
+		rates, ok := fxResponse.RatesAnalyzer[fx.Currency]
+		if !ok {
+			fxResponse.RatesAnalyzer[fx.Currency] = interfaces.RatesAnalyze{
+				Min:   fx.Rate,
+				Max:   fx.Rate,
+				Sum:   fx.Rate,
+				Count: 1,
+			}
+		} else {
+			rates := fxResponse.RatesAnalyzer[fx.Currency]
+			rates.Sum = rates.Sum + fx.Rate
+			rates.Count = rates.Count + 1
+			fxResponse.RatesAnalyzer[fx.Currency] = rates
+		}
+
+		if fx.Rate < rates.Min {
+			rates := fxResponse.RatesAnalyzer[fx.Currency]
+			rates.Min = fx.Rate
+			fxResponse.RatesAnalyzer[fx.Currency] = rates
+		}
+
+		if fx.Rate > rates.Max {
+			rates := fxResponse.RatesAnalyzer[fx.Currency]
+			rates.Max = fx.Rate
+			fxResponse.RatesAnalyzer[fx.Currency] = rates
+		}
+	}
+
+	for currency, _ := range fxResponse.RatesAnalyzer {
+		rates := fxResponse.RatesAnalyzer[currency]
+		rates.Avg = rates.Sum / float64(rates.Count)
+		fxResponse.RatesAnalyzer[currency] = rates
+	}
+
+	return
 }

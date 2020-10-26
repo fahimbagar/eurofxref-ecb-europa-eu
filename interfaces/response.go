@@ -8,7 +8,9 @@ type ForexResponse struct {
 }
 
 type RatesAnalyze struct {
-	Min float64 `json:"min"`
-	Max float64 `json:"max"`
-	Avg float64 `json:"avg"`
+	Min   float64 `json:"min"`
+	Max   float64 `json:"max"`
+	Avg   float64 `json:"avg"`
+	Count int     `json:"-"`
+	Sum   float64 `json:"-"`
 }

@@ -8,6 +8,7 @@ import (
 type ExchangeAgent interface {
 	GetLatestExchange() ForexResponse
 	GetExchangeByDate(date string) ForexResponse
+	GetAnalyzedRates() ForexResponse
 }
 
 type WebserviceHandler struct {
@@ -32,4 +33,8 @@ func (handler WebserviceHandler) GetLatestExchangeByDate(w http.ResponseWriter, 
 		http.NotFound(w, r)
 	}
 	_ = json.NewEncoder(w).Encode(handler.ExchangeAgent.GetExchangeByDate(dateString.(string)))
+}
+
+func (handler WebserviceHandler) RatesAnalyze(w http.ResponseWriter, r *http.Request) {
+	_ = json.NewEncoder(w).Encode(handler.ExchangeAgent.GetAnalyzedRates())
 }
