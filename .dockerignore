@@ -1,0 +1,7 @@
+# Ignore not important files
+coverage.*
+Dockerfile
+*.db
+*.sql
+vendor/
+*.png

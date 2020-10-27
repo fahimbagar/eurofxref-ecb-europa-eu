@@ -24,7 +24,7 @@ func Test_Repository(t *testing.T) {
 		t.Error(err)
 	}
 
-	xmlFile, err := os.Open("test.xml")
+	xmlFile, err := os.Open("response_test.xml")
 	if err != nil {
 		t.Error(err)
 	}
@@ -53,6 +53,11 @@ func Test_Repository(t *testing.T) {
 	}
 
 	exchanges = dbConn.FindByDateString("2020-10-22")
+	if len(exchanges) == 0 {
+		t.Error()
+	}
+
+	exchanges = dbConn.Find()
 	if len(exchanges) == 0 {
 		t.Error()
 	}

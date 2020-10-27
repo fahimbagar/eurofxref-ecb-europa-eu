@@ -21,6 +21,7 @@ type ExchangeRepository interface {
 	Find() []domain.Exchange
 }
 
+// ExchangeEngine downloading rates data from ECB and preparing the database
 func (exchangeEngine ExchangeEngine) Prepare() {
 	client := http.Client{}
 	resp, err := client.Get("https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist-90d.xml")
@@ -44,6 +45,7 @@ func (exchangeEngine ExchangeEngine) Prepare() {
 	log.Println("finish preparing exchange engine (use case)...")
 }
 
+// GetLatestExchange returns rates with DTO ForexResponse
 func (exchangeEngine *ExchangeEngine) GetLatestExchange() (fxResponse interfaces.ForexResponse) {
 	result := exchangeEngine.ExchangeRepository.FindByLatestDate()
 
@@ -57,6 +59,7 @@ func (exchangeEngine *ExchangeEngine) GetLatestExchange() (fxResponse interfaces
 	return
 }
 
+// GetExchangeByDate returns rates with certain date
 func (exchangeEngine ExchangeEngine) GetExchangeByDate(date string) (fxResponse interfaces.ForexResponse) {
 	result := exchangeEngine.ExchangeRepository.FindByDateString(date)
 
@@ -70,6 +73,7 @@ func (exchangeEngine ExchangeEngine) GetExchangeByDate(date string) (fxResponse 
 	return
 }
 
+// GetAnalyzedRates returns analyzed rate: max, min, average
 func (exchangeEngine ExchangeEngine) GetAnalyzedRates() (fxResponse interfaces.ForexResponse) {
 	result := exchangeEngine.ExchangeRepository.Find()
 

@@ -37,6 +37,6 @@ func (h *Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	// no pattern matched; send 404 response
+	// if no pattern is matched; return status 404
 	http.NotFound(w, r)
 }

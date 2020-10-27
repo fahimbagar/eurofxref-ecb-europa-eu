@@ -5,6 +5,7 @@ import (
 	"github.com/fahimbagar/eurofxref-ecb-europa-eu/interfaces"
 	"log"
 	"math"
+	"os"
 	"testing"
 )
 
@@ -69,5 +70,9 @@ func Test_ExchangeEngine(t *testing.T) {
 		if rates.Avg == 0 {
 			t.Error(currency)
 		}
+	}
+
+	if err := os.Remove("test.db"); err != nil {
+		t.Error(err)
 	}
 }

@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"regexp"
 	"testing"
+	"time"
 )
 
 type MockEngine struct {
@@ -14,18 +15,34 @@ type MockEngine struct {
 	ExchangeRepository ExchangeRepository
 }
 
-func (m MockEngine) GetAnalyzedRates() ForexResponse {
-	return ForexResponse{}
-}
-
 func (m MockEngine) GetLatestExchange() ForexResponse {
-	return ForexResponse{}
+	return ForexResponse{
+		Base: "TEST",
+		Rates: map[string]float64{
+			"IDR": 10,
+		},
+		Date: time.Now().Format("2006-01-02"),
+	}
 }
 
 func (m MockEngine) GetExchangeByDate(date string) ForexResponse {
 	return ForexResponse{
 		Base: "TEST",
 		Date: date,
+	}
+}
+
+func (m MockEngine) GetAnalyzedRates() ForexResponse {
+	return ForexResponse{
+		Base: "TEST",
+		RatesAnalyzer: map[string]RatesAnalyze{
+			"IDR": {
+				Min: 10,
+				Max: 10,
+				Avg: 10,
+			},
+		},
+		Date: time.Now().Format("2006-01-02"),
 	}
 }
 
@@ -101,8 +118,56 @@ func Test_HelloWorld(t *testing.T) {
 	}
 }
 
+func Test_GetLatestExchange(t *testing.T) {
+	customHandler := &Middleware{}
+
+	webservices := WebserviceHandler{}
+	webservices.ExchangeAgent = MockEngine{}
+
+	customHandler.HandleFunc(regexp.MustCompile(`/rates/latest$`), webservices.GetLatestExchange)
+
+	rr := httptest.NewRecorder()
+	req, err := http.NewRequest("GET", "/rates/latest", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	customHandler.ServeHTTP(rr, req)
+
+	// Check the status code is what we expect.
+	if status := rr.Code; status != http.StatusOK {
+		t.Error()
+	}
+
+	// Check the response body is what we expect.
+
+	expected := ForexResponse{
+		Base: "TEST",
+		Rates: map[string]float64{
+			"IDR": 10,
+		},
+		Date: time.Now().Format("2006-01-02"),
+	}
+	var response ForexResponse
+	if err := json.NewDecoder(rr.Body).Decode(&response); err != nil {
+		t.Error(err)
+	}
+
+	if response.Base != expected.Base {
+		t.Error()
+	}
+
+	if response.Date != expected.Date {
+		t.Error()
+	}
+
+	if response.Rates["IDR"] != expected.Rates["IDR"] {
+		t.Error()
+	}
+}
+
 func Test_GetLatestExchangeByDate(t *testing.T) {
 	customHandler := &Middleware{}
+
 	webservices := WebserviceHandler{}
 	webservices.ExchangeAgent = MockEngine{}
 
@@ -135,6 +200,56 @@ func Test_GetLatestExchangeByDate(t *testing.T) {
 	}
 
 	if response.Date != expected.Date {
+		t.Error()
+	}
+}
+
+func Test_RatesAnalyze(t *testing.T) {
+	customHandler := &Middleware{}
+
+	webservices := WebserviceHandler{}
+	webservices.ExchangeAgent = MockEngine{}
+
+	customHandler.HandleFunc(regexp.MustCompile(`/rates/analyze$`), webservices.RatesAnalyze)
+
+	rr := httptest.NewRecorder()
+	req, err := http.NewRequest("GET", "/rates/analyze", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	customHandler.ServeHTTP(rr, req)
+
+	// Check the status code is what we expect.
+	if status := rr.Code; status != http.StatusOK {
+		t.Error()
+	}
+
+	// Check the response body is what we expect.
+	expected := ForexResponse{
+		Base: "TEST",
+		RatesAnalyzer: map[string]RatesAnalyze{
+			"IDR": {
+				Min: 10,
+				Max: 10,
+				Avg: 10,
+			},
+		},
+		Date: time.Now().Format("2006-01-02"),
+	}
+	var response ForexResponse
+	if err := json.NewDecoder(rr.Body).Decode(&response); err != nil {
+		t.Error(err)
+	}
+
+	if response.Base != expected.Base {
+		t.Error()
+	}
+
+	if response.Date != expected.Date {
+		t.Error()
+	}
+
+	if response.Rates["IDR"] != expected.Rates["IDR"] {
 		t.Error()
 	}
 }

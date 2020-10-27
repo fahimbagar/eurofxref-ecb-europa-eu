@@ -23,6 +23,7 @@ type DBRepository struct {
 
 type ExchangeRepository DBRepository
 
+// NewDBExchange init database handler
 func NewDBExchange(dbHandlers map[string]DBHandler) (*ExchangeRepository, error) {
 	dbExchange := new(ExchangeRepository)
 	dbExchange.dbHandlers = dbHandlers
@@ -30,6 +31,7 @@ func NewDBExchange(dbHandlers map[string]DBHandler) (*ExchangeRepository, error)
 	return dbExchange, nil
 }
 
+// ResetDB resetting the database
 func (repo *ExchangeRepository) ResetDB() error {
 	if err := repo.dbHandler.Execute("DROP TABLE IF EXISTS exchange;"); err != nil {
 		return err
@@ -51,6 +53,7 @@ func (repo *ExchangeRepository) ResetDB() error {
 	return nil
 }
 
+// Store data from ECB rates to database
 func (repo *ExchangeRepository) Store(envelope Envelope) error {
 	for _, currencies := range envelope.Exchanges.CurrenciesPerDate {
 		for _, currency := range currencies.Currency {
@@ -63,6 +66,7 @@ func (repo *ExchangeRepository) Store(envelope Envelope) error {
 	return nil
 }
 
+// FindByLatestDate returns exchanges with latest date from database
 func (repo *ExchangeRepository) FindByLatestDate() []domain.Exchange {
 	row := repo.dbHandler.Query(`
 		SELECT t.currency, t.rate, t.forex_date
@@ -86,6 +90,7 @@ func (repo *ExchangeRepository) FindByLatestDate() []domain.Exchange {
 	return exchanges
 }
 
+// FindByDateString returns exchanges
 func (repo *ExchangeRepository) FindByDateString(date string) []domain.Exchange {
 	row := repo.dbHandler.Query(fmt.Sprintf(`
 		SELECT t.currency, t.rate, t.forex_date
@@ -105,6 +110,7 @@ func (repo *ExchangeRepository) FindByDateString(date string) []domain.Exchange 
 	return exchanges
 }
 
+// Find returns all exchanges
 func (repo *ExchangeRepository) Find() []domain.Exchange {
 	row := repo.dbHandler.Query(`
 		SELECT currency, rate, forex_date

@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"time"
 )
 
 func main() {
@@ -37,8 +38,14 @@ func main() {
 	customHandler.HandleFunc(regexp.MustCompile(`/rates/(\d{4}-\d{2}-\d{2})$`), webservices.GetLatestExchangeByDate)
 	customHandler.HandleFunc(regexp.MustCompile(`/rates/analyze$`), webservices.RatesAnalyze)
 
-	log.Println("http served at http://localhost:8080")
-	if err = http.ListenAndServe(":8080", customHandler); err != nil {
+	log.Println("list of endpoints:")
+	log.Println("- http://localhost:8282/rates/latest")
+	log.Printf("- http://localhost:8282/rates/%s | date format is yyyy-mm-dd\n", time.Now().AddDate(0, 0, -2).Format("2006-01-02"))
+	log.Println("- http://localhost:8282/rates/analyze")
+	log.Println()
+
+	log.Println("web server started at http://0.0.0.0:8282")
+	if err = http.ListenAndServe(":8282", customHandler); err != nil {
 		log.Fatal(err)
 	}
 }
