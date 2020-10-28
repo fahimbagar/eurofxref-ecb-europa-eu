@@ -2,7 +2,7 @@
 <a href='https://github.com/jpoles1/gopherbadger' target='_blank'>![gopherbadger-tag-do-not-edit](https://img.shields.io/badge/Go%20Coverage-89%25-brightgreen.svg?longCache=true&style=flat)</a>
 
 ## About the Project
-This project is to show historical rates from https://www.ecb.europa.eu using [Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html) and minimum dependency other than database connection.
+This project is to show historical rates from https://www.ecb.europa.eu using [Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html) and use only the standard library other than database connection.
 
 ## Prerequisites
 - [Golang](https://golang.org/)
